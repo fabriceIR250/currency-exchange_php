@@ -58,7 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <!-- Registration Form -->
 <main class="container mx-auto p-4">
 
-    <h1 class="text-3xl font-semibold text-center mb-8">Register</h1>
+    <h1 class="text-3xl font-semibold text-center mb-8">Registers</h1>
 
     <?php if (isset($error)): ?>
         <div class="bg-red-600 text-white p-4 rounded mb-4">
