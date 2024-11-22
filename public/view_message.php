@@ -43,9 +43,12 @@ $message = mysqli_fetch_assoc($result);
     <link rel="stylesheet" href="path/to/font-awesome/css/font-awesome.min.css">
 </head>
 <body>
+<div class="bg-blue-600 text-white p-4 shadow-md">
+<h1 class="text-3xl font-bold text-center mb-6">View Message</h1>
+    </div>
 
 <main class="container mx-auto p-6">
-    <h1 class="text-3xl font-bold text-center mb-6">View Message</h1>
+   
 
     <div class="bg-white p-6 rounded shadow-lg border border-gray-200">
         <p><strong>Name:</strong> <?php echo htmlspecialchars($message['name']); ?></p>

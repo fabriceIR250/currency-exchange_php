@@ -46,8 +46,7 @@ while ($row = $status_counts_result->fetch_assoc()) {
     $status_counts[$row['status']] = $row['count'];
 }
 
- // Fetch total number of transactions
- // Fetch total transactions for the user
+// Fetch total number of transactions
 $total_transactions_query = "
 SELECT COUNT(*) as total 
 FROM exchange_requests 
@@ -58,113 +57,141 @@ $total_transactions_result = $conn->query($total_transactions_query);
 $total_transactions = 0;
 
 if ($row = $total_transactions_result->fetch_assoc()) {
-$total_transactions = $row['total'];
+    $total_transactions = $row['total'];
 }
 
+// Fetch exchange rates for INR to FRW and FRW to INR
+$exchange_rates_query = "SELECT from_currency, to_currency, rate FROM exchange_rates WHERE (from_currency = 'INR' AND to_currency = 'FRW') OR (from_currency = 'FRW' AND to_currency = 'INR')";
+$exchange_rates_result = $conn->query($exchange_rates_query);
 
+// Initialize exchange rate variables
+$inr_to_frw_rate = 0;
+$frw_to_inr_rate = 0;
 
+while ($rate_row = $exchange_rates_result->fetch_assoc()) {
+    if ($rate_row['from_currency'] == 'INR' && $rate_row['to_currency'] == 'FRW') {
+        $inr_to_frw_rate = $rate_row['rate'];
+    }
+    if ($rate_row['from_currency'] == 'FRW' && $rate_row['to_currency'] == 'INR') {
+        $frw_to_inr_rate = $rate_row['rate'];
+    }
+}
+
+$conn->close();
 ?>
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <!-- Dashboard Content -->
 <main class="container mx-auto p-4">
-    
 
     <h1 class="text-3xl font-semibold text-center mb-8">Your Dashboard</h1>
-    <!-- this is the transation tips--->
+    
+    <!-- Transaction Tips Section -->
     <section class="mb-8">
-    <h2 class="text-2xl font-bold mb-4">Transactions Overview</h2>
-    <div class="grid grid-cols-3 gap-4 text-center">
-        <div class="bg-blue-100 p-6 rounded shadow">
-            <h3 class="text-lg font-bold">Total Transactions</h3>
-            <p class="text-3xl font-semibold"><?php echo $total_transactions; ?></p>
+        <h2 class="text-2xl font-bold mb-4">Transactions Overview</h2>
+        <div class="grid grid-cols-3 gap-4 text-center">
+            <div class="bg-blue-100 p-6 rounded shadow">
+                <h3 class="text-lg font-bold">Total Transactions</h3>
+                <p class="text-3xl font-semibold"><?php echo $total_transactions; ?></p>
+            </div>
+            <div class="bg-green-100 p-6 rounded shadow">
+                <h3 class="text-lg font-bold">Approved</h3>
+                <p class="text-3xl font-semibold"><?php echo $status_counts['Approved']; ?></p>
+            </div>
+            <div class="bg-yellow-100 p-6 rounded shadow">
+                <h3 class="text-lg font-bold">Pending</h3>
+                <p class="text-3xl font-semibold"><?php echo $status_counts['Pending']; ?></p>
+            </div>
+            <div class="bg-red-100 p-6 rounded shadow">
+                <h3 class="text-lg font-bold">Rejected</h3>
+                <p class="text-3xl font-semibold"><?php echo $status_counts['Rejected']; ?></p>
+            </div>
         </div>
-        <div class="bg-green-100 p-6 rounded shadow">
-            <h3 class="text-lg font-bold">Approved</h3>
-            <p class="text-3xl font-semibold"><?php echo $status_counts['Approved']; ?></p>
-        </div>
-        <div class="bg-yellow-100 p-6 rounded shadow">
-            <h3 class="text-lg font-bold">Pending</h3>
-            <p class="text-3xl font-semibold"><?php echo $status_counts['Pending']; ?></p>
-        </div>
-        <div class="bg-red-100 p-6 rounded shadow">
-            <h3 class="text-lg font-bold">Rejected</h3>
-            <p class="text-3xl font-semibold"><?php echo $status_counts['Rejected']; ?></p>
-        </div>
-    </div>
-</section>
+    </section>
 
-<!--- this is chart start--->
-    <section class="mb-8 ">
-    <h2 class="text-2xl font-bold mb-4">Exchange Requests Overview</h2>
-    <div class="bg-white p-6 rounded shadow-md">
-        <canvas id="statusPolarChart" class="w-full h-96"></canvas>
-    </div>
-</section>
+    <!-- Exchange Rates Section -->
+    <section class="mb-8">
+        <h2 class="text-2xl font-bold mb-4">Current Exchange Rates</h2>
+        <div class="grid grid-cols-2 gap-4 text-center">
+            <div class="bg-blue-100 p-6 rounded shadow">
+                <h3 class="text-lg font-bold">INR to FRW</h3>
+                <p class="text-3xl font-semibold"><?php echo number_format($inr_to_frw_rate, 2); ?></p>
+            </div>
+            <div class="bg-green-100 p-6 rounded shadow">
+                <h3 class="text-lg font-bold">FRW to INR</h3>
+                <p class="text-3xl font-semibold"><?php echo number_format($frw_to_inr_rate, 2); ?></p>
+            </div>
+        </div>
+    </section>
 
+    <!-- Exchange Requests Overview (Chart Section) -->
+    <section class="mb-8">
+        <h2 class="text-2xl font-bold mb-4">Exchange Requests Overview</h2>
+        <div class="bg-white p-6 rounded shadow-md">
+            <canvas id="statusPolarChart" class="w-full h-96"></canvas>
+        </div>
+    </section>
 
     <!-- New Exchange Request Section -->
     <section class="mb-8">
-    <h2 class="text-2xl font-bold mb-4">Make a New Exchange Request</h2>
-    
-    <form action="submit_request.php" method="POST" class="space-y-4 bg-white p-6 rounded shadow-md" enctype="multipart/form-data">
-        <div class="flex space-x-4">
-            <!-- From Currency -->
-            <div class="w-1/2">
-                <label for="from_currency" class="block text-sm font-medium text-gray-700">From Currency</label>
-                <select name="from_currency" id="from_currency" class="w-full border-gray-300 rounded-md border p-2 font-bold" required>
-                    <option value="INR">INR</option>
-                    <option value="FRW">FRW</option>
-                    <!-- Add more currencies here -->
+        <h2 class="text-2xl font-bold mb-4">Make a New Exchange Request</h2>
+        <form action="submit_request.php" method="POST" class="space-y-4 bg-white p-6 rounded shadow-md" enctype="multipart/form-data">
+            <div class="flex space-x-4">
+                <!-- From Currency -->
+                <div class="w-1/2">
+                    <label for="from_currency" class="block text-sm font-medium text-gray-700">From Currency</label>
+                    <select name="from_currency" id="from_currency" class="w-full border-gray-300 rounded-md border p-2 font-bold" required>
+                        <option value="INR">INR</option>
+                        <option value="FRW">FRW</option>
+                        <!-- Add more currencies here -->
+                    </select>
+                </div>
+
+                <!-- To Currency -->
+                <div class="w-1/2">
+                    <label for="to_currency" class="block text-sm font-medium text-gray-700">To Currency</label>
+                    <select name="to_currency" id="to_currency" class="w-full border-gray-300 rounded-md border p-2 font-bold" required>
+                        <option value="INR">INR</option>
+                        <option value="FRW">FRW</option>
+                        <!-- Add more currencies here -->
+                    </select>
+                </div>
+            </div>
+
+            <!-- Amount -->
+            <div>
+                <label for="amount" class="block text-sm font-medium text-gray-700">Amount</label>
+                <input type="number" name="amount" id="amount" class="w-full border-gray-300 rounded-md border p-2 font-bold" required>
+            </div>
+
+            <!-- Payment Method -->
+            <div>
+                <label for="payment_method" class="block text-sm font-medium text-gray-700">Payment Method</label>
+                <select name="payment_method" id="payment_method" class="w-full border-gray-300 rounded-md p-2 border font-bold" required>
+                    <option value="Bank Transfer">Bank Transfer</option>
+                    <option value="PayPal">PayPal</option>
+                    <option value="Cash">Cash</option>
+                    <!-- Add more payment methods here -->
                 </select>
             </div>
 
-            <!-- To Currency -->
-            <div class="w-1/2">
-                <label for="to_currency" class="block text-sm font-medium text-gray-700">To Currency</label>
-                <select name="to_currency" id="to_currency" class="w-full border-gray-300 rounded-md border p-2 font-bold" required>
-                    <option value="INR">INR</option>
-                    <option value="FRW">FRW</option>
-                    <!-- Add more currencies here -->
-                </select>
+            <!-- Payment Screenshot -->
+            <div>
+                <label for="payment_screenshot" class="block text-sm font-medium text-gray-700">Payment Screenshot</label>
+                <input type="file" name="payment_screenshot" id="payment_screenshot" class="w-full border-gray-300 rounded-md p-2 border" accept="image/*" required>
             </div>
-        </div>
 
-        <!-- Amount -->
-        <div>
-            <label for="amount" class="block text-sm font-medium text-gray-700">Amount</label>
-            <input type="number" name="amount" id="amount" class="w-full border-gray-300 rounded-md border p-2 font-bold" required>
-        </div>
+            <!-- Hidden status field (default to 'Pending') -->
+            <input type="hidden" name="status" value="Pending">
 
-        <!-- Payment Method -->
-        <div>
-            <label for="payment_method" class="block text-sm font-medium text-gray-700">Payment Method</label>
-            <select name="payment_method" id="payment_method" class="w-full border-gray-300 rounded-md p-2 border font-bold" required>
-                <option value="Bank Transfer">Bank Transfer</option>
-                <option value="PayPal">PayPal</option>
-                <option value="Cash">Cash</option>
-                <!-- Add more payment methods here -->
-            </select>
-        </div>
-
-        <!-- Payment Screenshot -->
-        <div>
-            <label for="payment_screenshot" class="block text-sm font-medium text-gray-700">Payment Screenshot</label>
-            <input type="file" name="payment_screenshot" id="payment_screenshot" class="w-full border-gray-300 rounded-md p-2 border" accept="image/*" required>
-        </div>
-
-        <!-- Hidden status field (default to 'Pending') -->
-        <input type="hidden" name="status" value="Pending">
-
-        <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 w-full">Submit Request</button>
-    </form>
-</section>
-
+            <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 w-full">Submit Request</button>
+        </form>
+    </section>
 
     <!-- Your Previous Exchange Requests Section -->
     <section>
         <h2 class="text-2xl font-bold mb-4">Your Previous Exchange Requests</h2>
-        
         <?php if ($requests_result->num_rows > 0): ?>
             <table class="min-w-full bg-white border border-gray-200">
                 <thead>
@@ -188,8 +215,8 @@ $total_transactions = $row['total'];
                             <td class="px-4 py-2 border">
                                 <?php if (!empty($request['admin_screenshot'])): ?>
                                 <a href="uploads/payment_screenshots/<?php echo htmlspecialchars($request['admin_screenshot']); ?>" target="_blank" title="View Full Image">
-            <img src="uploads/payment_screenshots/<?php echo htmlspecialchars($request['admin_screenshot']); ?>" alt="Admin Screenshot" class="max-w-[150px] h-40 rounded shadow">
-        </a>
+                                    <img src="uploads/payment_screenshots/<?php echo htmlspecialchars($request['admin_screenshot']); ?>" alt="Admin Screenshot" class="max-w-[150px] h-40 rounded shadow">
+                                </a>
                                 <?php else: ?>
                                 <p class="text-center p-2 text-red-600 font-bold border">▲ : Wait for Admin payment screenshot !</p>
                                 <?php endif; ?>
@@ -248,5 +275,4 @@ $total_transactions = $row['total'];
     const ctx = document.getElementById('statusPolarChart').getContext('2d');
     new Chart(ctx, config);
 </script>
-
 

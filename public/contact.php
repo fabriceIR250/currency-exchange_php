@@ -39,10 +39,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body>
+<div class="bg-blue-600 text-white p-4 shadow-md">
+    <h1 class="text-3xl font-bold text-center mb-6">Contact Us</h1>
+    </div>
 
 <main class="container mx-auto p-6">
-    <h1 class="text-3xl font-bold text-center mb-6">Contact Us</h1>
-
+    
     <?php if (isset($error)): ?>
         <div class="bg-red-600 text-white p-4 rounded mb-4">
             <p><?php echo $error; ?></p>
@@ -74,7 +76,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700">Send Message</button>
     </form>
+    <button type="submit" onclick="window.location.href='dashboard.php'" class="bg-blue-600 text-white m-20 px-6 py-2 rounded hover:bg-blue-700">back to 🏡</button>
 </main>
+
 
 </body>
 </html>
