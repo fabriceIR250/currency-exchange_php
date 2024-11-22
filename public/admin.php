@@ -223,7 +223,9 @@ $conn->close();
                         <th class="px-4 py-2 border">From Currency</th>
                         <th class="px-4 py-2 border">To Currency</th>
                         <th class="px-4 py-2 border">Status</th>
+                        <th class="px-4 py-2 border">payment_number</th>
                         <th class="px-4 py-2 border">User Payment Screenshot</th>
+                        <th class="px-4 py-2 border">payment_number</th>
                         <th class="px-4 py-2 border">Actions</th>
                     </tr>
                 </thead>
@@ -236,6 +238,7 @@ $conn->close();
                             <td class="px-4 py-2 border"><?php echo htmlspecialchars($request['from_currency']); ?></td>
                             <td class="px-4 py-2 border"><?php echo htmlspecialchars($request['to_currency']); ?></td>
                             <td class="px-4 py-2 border"><?php echo htmlspecialchars($request['status']); ?></td>
+                            <td class="px-4 py-2 border"><?php echo htmlspecialchars($request['pay_number']); ?></td>
                             <td class="px-4 py-2 border">
                                 <?php if (!empty($request['payment_screenshot'])): ?>
                                     <a href="uploads/payment_screenshots/<?php echo htmlspecialchars($request['payment_screenshot']); ?>" target="_blank" title="View Full Image">

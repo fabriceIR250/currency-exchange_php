@@ -175,6 +175,10 @@ $conn->close();
                     <!-- Add more payment methods here -->
                 </select>
             </div>
+            <div>
+            <label for="amount" class="block text-sm font-medium text-gray-700">Payment Number</label>
+            <input type="number" name="pay_number" id="amount" class="w-full border-gray-300 rounded-md border p-2 font-bold" required>
+            </div>
 
             <!-- Payment Screenshot -->
             <div>
