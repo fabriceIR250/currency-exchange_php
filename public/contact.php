@@ -20,15 +20,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = "Invalid email address.";
     } else {
         // Insert the message into the database
-        $query = "INSERT INTO contact_messages (name, email, message) VALUES ('$name', '$email', '$message')";
+        $query = "INSERT INTO contact_messages (name, email, message, created_at) VALUES ('$name', '$email', '$message', NOW())";
         if (mysqli_query($conn, $query)) {
-            $success = "Your message has been sent successfully.";
+            $_SESSION['new_message_notification'] = true; // Set the notification flag
+            header('Location: contact.php'); // Reload the page
+            exit;
         } else {
             $error = "Failed to send your message. Please try again later.";
         }
     }
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">

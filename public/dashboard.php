@@ -21,6 +21,7 @@ if ($_SESSION['role'] === 'admin') {
 
 // Get the logged-in user ID
 $user_id = $_SESSION['user_id'];
+$user_name=$_SESSION['username'];
 
 // Fetch user's exchange requests from the database
 $requests_query = "SELECT * FROM exchange_requests WHERE user_id = '$user_id' ORDER BY created_at DESC";
@@ -85,7 +86,7 @@ $conn->close();
 <!-- Dashboard Content -->
 <main class="container mx-auto p-4">
 
-    <h1 class="text-3xl font-semibold text-center mb-8">Your Dashboard</h1>
+    <h1 class="text-3xl font-semibold text-center mb-8">Welcome <?php echo $user_name; ?></h1>
     
     <!-- Transaction Tips Section -->
     <section class="mb-8">
@@ -177,7 +178,7 @@ $conn->close();
             </div>
             <div>
             <label for="amount" class="block text-sm font-medium text-gray-700">Payment Number</label>
-            <input type="number" name="pay_number" id="amount" class="w-full border-gray-300 rounded-md border p-2 font-bold" required>
+            <input type="number" name="pay_number" id="payement_number" class="w-full border-gray-300 rounded-md border p-2 font-bold" required>
             </div>
 
             <!-- Payment Screenshot -->
@@ -205,6 +206,7 @@ $conn->close();
                         <th class="px-4 py-2 border">Amount</th>
                         <th class="px-4 py-2 border">Status</th>
                         <th class="px-4 py-2 border">Date</th>
+                        <th class="px-4 py-2 border">Payment Method&number</th>
                         <th class="px-4 py-2 border">Admin Screenshot</th>
                     </tr>
                 </thead>
@@ -216,6 +218,7 @@ $conn->close();
                             <td class="px-4 py-2 border"><?php echo $request['amount']; ?></td>
                             <td class="px-4 py-2 border"><?php echo $request['status']; ?></td>
                             <td class="px-4 py-2 border"><?php echo $request['created_at']; ?></td>
+                            <td class="px-4 py-2 border"><?php echo $request['payment_method']; ?>:<?php echo $request['payment_number']; ?></td>
                             <td class="px-4 py-2 border">
                                 <?php if (!empty($request['admin_screenshot'])): ?>
                                 <a href="uploads/payment_screenshots/<?php echo htmlspecialchars($request['admin_screenshot']); ?>" target="_blank" title="View Full Image">

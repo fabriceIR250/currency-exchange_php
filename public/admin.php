@@ -102,7 +102,10 @@ if ($result->num_rows > 0) {
     }
 }
 
+
+
 $conn->close();
+
 
 ?>
 
@@ -180,6 +183,8 @@ $conn->close();
         </div>
     <?php endif; ?>
 
+
+
     <h1 class="text-3xl font-semibold text-center mb-8">Admin Dashboard</h1>
 
     <!-- Exchange Requests Section -->
@@ -223,9 +228,8 @@ $conn->close();
                         <th class="px-4 py-2 border">From Currency</th>
                         <th class="px-4 py-2 border">To Currency</th>
                         <th class="px-4 py-2 border">Status</th>
-                        <th class="px-4 py-2 border">payment_number</th>
+                        <th class="px-4 py-2 border">payment Method && Number</th>
                         <th class="px-4 py-2 border">User Payment Screenshot</th>
-                        <th class="px-4 py-2 border">payment_number</th>
                         <th class="px-4 py-2 border">Actions</th>
                     </tr>
                 </thead>
@@ -238,7 +242,7 @@ $conn->close();
                             <td class="px-4 py-2 border"><?php echo htmlspecialchars($request['from_currency']); ?></td>
                             <td class="px-4 py-2 border"><?php echo htmlspecialchars($request['to_currency']); ?></td>
                             <td class="px-4 py-2 border"><?php echo htmlspecialchars($request['status']); ?></td>
-                            <td class="px-4 py-2 border"><?php echo htmlspecialchars($request['pay_number']); ?></td>
+                            <td class="px-4 py-2 border"><?php echo htmlspecialchars($request['payment_method']); ?> :<?php echo htmlspecialchars($request['payment_number']); ?></td>
                             <td class="px-4 py-2 border">
                                 <?php if (!empty($request['payment_screenshot'])): ?>
                                     <a href="uploads/payment_screenshots/<?php echo htmlspecialchars($request['payment_screenshot']); ?>" target="_blank" title="View Full Image">
@@ -344,4 +348,31 @@ const doughnutConfig = {
 const doughnutCtx = document.getElementById('statusDoughnutChart').getContext('2d');
 new Chart(doughnutCtx, doughnutConfig);
 </script>
+
+<script>
+    // Request permission for notifications
+    if (Notification.permission !== "granted") {
+        Notification.requestPermission();
+    }
+
+    // Function to check for new messages
+    function checkNewMessages() {
+        fetch('check_new_message.php')
+            .then(response => response.json())
+            .then(data => {
+                if (data.newMessage) {
+                    // Show desktop notification
+                    new Notification("New Message Received", {
+                        body: "A new message has arrived. Check your dashboard.",
+                        icon: "https://cdn-icons-png.flaticon.com/512/561/561127.png" // Example icon URL
+                    });
+                }
+            })
+            .catch(error => console.error("Error checking messages:", error));
+    }
+
+    // Check for new messages every 10 seconds
+    setInterval(checkNewMessages, 10000);
+</script>
+
 
